@@ -1,88 +1,139 @@
 /* ---------------------------------------------------------------------------
- * index.css — Global stylesheet (plain CSS, no Tailwind)
- * Add global resets, custom properties, and base element styles here.
- * Component-specific styles should go in their own .css files next to
- * the component (e.g. Sidebar.css, ChatArea.css).
+ * index.css — global tokens, resets, and shared primitives
+ * Component-specific styles live next to each component.
  * --------------------------------------------------------------------------- */
 
-/* ── Reset & box model ───────────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ── CSS Custom Properties (design tokens) ───────────────────────────────── */
 :root {
-  /* Colours */
-  --color-bg:          #f3f4f6;
-  --color-bg-dark:     #1f2937;
-  --color-sidebar-bg:  #1f2937;
-  --color-sidebar-text:#d1d5db;
-  --color-white:       #ffffff;
-  --color-primary:     #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-danger:      #ef4444;
-  --color-border:      #e5e7eb;
-  --color-text:        #111827;
-  --color-text-muted:  #6b7280;
+  /* Surface / background ---------------------------------------------------- */
+  --bg-0: #050816;
+  --bg-1: #0b1120;
+  --bg-2: #111a30;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.10);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.20);
 
-  /* Typography */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-size-xs:   0.75rem;
-  --font-size-sm:   0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg:   1.125rem;
-  --font-size-xl:   1.25rem;
-  --font-size-2xl:  1.5rem;
+  /* Text ------------------------------------------------------------------- */
+  --text: #e6ecff;
+  --text-muted: #95a3c4;
+  --text-faint: #6c7a99;
 
-  /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
+  /* Accents ---------------------------------------------------------------- */
+  --accent: #5b8cff;
+  --accent-strong: #7aa2ff;
+  --accent-glow: rgba(91, 140, 255, 0.45);
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
 
-  /* Borders & radius */
-  --radius-sm:  0.25rem;
-  --radius-md:  0.5rem;
-  --radius-lg:  0.75rem;
-  --radius-full: 9999px;
+  /* Type ------------------------------------------------------------------- */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+  /* Radii ------------------------------------------------------------------ */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Shadows ---------------------------------------------------------------- */
+  --shadow-soft: 0 10px 30px rgba(2, 8, 23, 0.45);
+  --shadow-elev: 0 20px 60px rgba(2, 8, 23, 0.55);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* ── Base element styles ─────────────────────────────────────────────────── */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
 }
 
 body {
   font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  background: radial-gradient(1200px 800px at 12% -10%, #1a2547 0%, transparent 60%),
+              radial-gradient(900px 700px at 110% 10%, #0d2540 0%, transparent 55%),
+              linear-gradient(180deg, var(--bg-0), var(--bg-1));
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden; /* main app handles its own scroll regions */
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--accent-strong);
   text-decoration: none;
 }
-a:hover {
-  text-decoration: underline;
-}
+a:hover { text-decoration: underline; }
 
 button {
   font-family: inherit;
   cursor: pointer;
+  background: transparent;
+  border: none;
+  color: inherit;
 }
 
-input, textarea {
+button:disabled { cursor: not-allowed; opacity: 0.6; }
+
+input,
+textarea {
   font-family: inherit;
+  color: inherit;
 }
 
+::selection {
+  background: rgba(122, 162, 255, 0.35);
+  color: #fff;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* ── Glass primitive ─────────────────────────────────────────────────────── */
+.glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: var(--shadow-soft), var(--shadow-inset);
+}
+
+/* ── Reusable badge / pill ───────────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── Focus ring ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

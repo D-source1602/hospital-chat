@@ -1,42 +1,63 @@
-﻿#  HospitalChat
+# MediSync — Hospital Chat
 
-A real-time hospital department communication dashboard — similar to Slack or Microsoft Teams — where departments (ICU, Lab, Pharmacy, etc.) can communicate in real time.
+A real-time hospital department communication dashboard. Each department —
+ICU, Emergency, Cardiology, Pediatrics, Lab, Pharmacy, Radiology, Surgery —
+gets its own private chat channel. Staff log in with a role (Doctor, Nurse,
+Lab Technician, Pharmacist, Receptionist, Administrator) which determines
+which channels they can read and post in.
+
+The frontend is built in **TypeScript + React 19 (Vite)** with a 3D-leaning
+glassmorphic UI, parallax background, animated brand mark, role/department
+selection card, and animated message list.
 
 ---
 
-##  Table of Contents
+## Table of Contents
 
-- [Overview](#overview)
+- [Highlights](#highlights)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Available Scripts](#available-scripts)
 - [Environment Variables](#environment-variables)
+- [Roles and Departments](#roles-and-departments)
 - [Architecture Notes](#architecture-notes)
 
 ---
 
-## Overview
+## Highlights
 
-HospitalChat is a React frontend (backed by a separate Node.js server) that provides:
-
-- **Login Page** — authenticates hospital staff
-- **Dashboard** — main view with department sidebar, chat area, and message input
-- **Real-time messaging** — via Socket.IO
-- **REST API communication** — via Axios
+- **Role-based login** — six roles, each with its own visual identity and a
+  default set of accessible departments.
+- **Department-isolated chat** — messages are stored and rendered per
+  department; switching channels remounts the panel and replays the entry
+  animation.
+- **Persistent session** — the logged-in user and chat history are persisted
+  to `localStorage` so reloads keep state.
+- **3D / glassmorphism design** — animated parallax background, perspective
+  grid, mouse-tilt login card, floating brand mark, and depth-shadowed
+  bubbles. All animation is pure CSS + a tiny mouse-parallax hook (no heavy
+  3D engines required).
+- **Strict TypeScript** — `tsconfig.app.json` enables `strict`,
+  `noUnusedLocals`, `noFallthroughCasesInSwitch`. Domain types live in
+  `src/types`.
+- **Accessible by default** — semantic landmarks, keyboard-friendly tiles,
+  visible focus rings, ARIA `listbox`/`option` for the department picker,
+  Enter/Shift+Enter handling in the composer.
 
 ---
 
 ## Tech Stack
 
 | Technology | Purpose |
-|---|---|
+| --- | --- |
 | [React 19](https://react.dev) | UI framework |
-| [Vite](https://vite.dev) | Build tool & dev server |
+| [TypeScript](https://www.typescriptlang.org/) | Static typing across the app |
+| [Vite](https://vite.dev) | Build tool & dev server (esbuild transpiles `.tsx`) |
 | [React Router v7](https://reactrouter.com) | Client-side routing |
-| [Axios](https://axios-http.com) | HTTP requests to the backend REST API |
-| [Socket.IO Client](https://socket.io/docs/v4/client-api/) | Real-time WebSocket communication |
-| Plain CSS (per-component `.css` files) | Styling |
+| [Axios](https://axios-http.com) | HTTP client (ready for backend wire-up) |
+| [Socket.IO Client](https://socket.io/docs/v4/client-api/) | Real-time transport (ready for backend wire-up) |
+| Plain CSS (per-component) | Styling, glassmorphism, 3D transforms |
 
 ---
 
@@ -44,45 +65,49 @@ HospitalChat is a React frontend (backed by a separate Node.js server) that prov
 
 ```
 src/
- main.jsx                  # Entry point — mounts app with AuthProvider
- App.jsx                   # Root component — renders AppRoutes
- index.css                 # Global CSS reset & design tokens (:root variables)
+  main.tsx                       # Entry — mounts <AuthProvider><App/></AuthProvider>
+  App.tsx                        # Wraps routes in <ChatProvider>
+  index.css                      # Tokens, resets, .glass primitive
 
- routes/
-    AppRoutes.jsx         # All route definitions + root redirect logic
+  types/
+    index.ts                     # Role, DepartmentId, User, ChatMessage, ...
 
- pages/
-    LoginPage.jsx         # Public login page
-    LoginPage.css
-    Dashboard.jsx         # Main authenticated dashboard
-    Dashboard.css
+  context/
+    AuthContext.tsx              # User session + per-role department access
+    ChatContext.tsx              # Per-department messages, sendMessage()
 
- layouts/
-    DashboardLayout.jsx   # Shell layout (Sidebar + Chat area + Input)
-    DashboardLayout.css
+  routes/
+    AppRoutes.tsx                # ProtectedRoute + PublicOnlyRoute
 
- components/
-    sidebar/
-       Sidebar.jsx       # Department list navigation
-       Sidebar.css
+  pages/
+    Login/LoginPage.{tsx,css}    # Role + department gate, 3D tilt card
+    Dashboard/DashboardPage.{tsx,css}
+
+  layouts/
+    DashboardLayout/             # Three-pane shell (Navbar + Sidebar + Chat)
+
+  components/
+    ui/
+      AnimatedBackground.{tsx,css}   # Parallax blobs + perspective grid
+      Logo.{tsx,css}                 # Animated 3D brand mark
+    Navbar/                          # Top bar with user identity + sign out
+    Sidebar/                         # Department list (locks inaccessible ones)
     chat/
-       ChatHeader.jsx    # Active channel title bar
-       ChatHeader.css
-       ChatArea.jsx      # Scrollable message list
-       ChatArea.css
-       MessageInput.jsx  # Text input + send button
-       MessageInput.css
-    common/               # Shared reusable components (buttons, modals, avatars)
+      ChatHeader.{tsx,css}           # Department header + allowed roles
+      MessageList.{tsx,css}          # Day groups, self vs other, animated entry
+      MessageInput.{tsx,css}         # Composer (Enter to send, Shift+Enter newline)
 
- contexts/
-    AuthContext.jsx       # Global auth state — user, setUser
-    SocketContext.jsx     # Global socket instance
+  hooks/
+    useMouseParallax.ts          # Spring-smoothed mouse tracking
 
- hooks/
-    useSocket.js          # Custom hook for Socket.IO connection lifecycle
+  services/
+    api.ts                       # Axios instance (VITE_API_BASE_URL)
 
- services/
-     api.js                # Axios instance — base URL + interceptors
+  utils/
+    constants.ts                 # ROLES + DEPARTMENTS catalogs
+    seed.ts                      # Deterministic demo messages per department
+    storage.ts                   # Tiny typed localStorage wrapper
+    time.ts                      # formatClock / formatDayHeader helpers
 ```
 
 ---
@@ -97,82 +122,113 @@ src/
 ### Installation
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/shuvamkr69/hospital-chat.git
+git clone https://github.com/<owner>/hospital-chat.git
 cd hospital-chat
-
-# 2. Install dependencies
 npm install
-
-# 3. Create your environment file (see Environment Variables below)
-cp .env.example .env
-
-# 4. Start the development server
 npm run dev
 ```
 
-The app will be available at **http://localhost:5173**
+The app will be available at **http://localhost:5173**.
+
+### Production build
+
+```bash
+npm run build
+npm run preview
+```
+
+> Vite uses esbuild to transpile `.ts`/`.tsx` directly — no separate
+> `tsc` step is required for the build to succeed. Optional editor-side
+> typechecking can be enabled by adding `typescript` and running
+> `tsc -b --noEmit`.
 
 ---
 
 ## Available Scripts
 
 | Script | Description |
-|---|---|
-| `npm run dev` | Start the Vite development server with HMR |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server with HMR |
 | `npm run build` | Bundle the app for production into `dist/` |
 | `npm run preview` | Serve the production build locally |
-| `npm run lint` | Run ESLint across the project |
+| `npm run lint` | Run ESLint across the JS config files |
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file in the project root (never commit this file):
+Create a `.env` file in the project root:
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api
 VITE_SOCKET_URL=http://localhost:5000
 ```
 
-> All client-side env variables must be prefixed with `VITE_` to be exposed by Vite.
+> All client-side env variables must be prefixed with `VITE_` to be
+> exposed by Vite.
+
+---
+
+## Roles and Departments
+
+Roles are defined in `src/utils/constants.ts`:
+
+| Role | Default departments |
+| --- | --- |
+| Doctor | ICU, Emergency, Cardiology, Pediatrics, Radiology, Surgery |
+| Nurse | ICU, Emergency, Cardiology, Pediatrics, Surgery |
+| Lab Technician | Laboratory only |
+| Pharmacist | Pharmacy only |
+| Receptionist | Emergency only |
+| Administrator | All departments |
+
+Each department also declares which roles can read/post in it
+(`Department.allowedRoles`). The Login page disables departments not
+allowed for the chosen role; the Sidebar locks them out for logged-in
+users; the chat panel only renders messages for the active channel.
 
 ---
 
 ## Architecture Notes
 
-### Auth & Routing
+### Auth and routing
 
-`AppRoutes.jsx` reads `user` from `AuthContext`:
+`AuthProvider` (mounted in `main.tsx`) holds the current user, persists
+to `localStorage`, and exposes `login`, `logout`, and
+`setActiveDepartment`. Routes use `ProtectedRoute` /
+`PublicOnlyRoute` wrappers in `routes/AppRoutes.tsx`.
 
-- `user === null` (not logged in)  `/` redirects to `/login`
-- `user !== null` (logged in)  `/` redirects to `/dashboard`
+To wire up real authentication, replace the body of `login()` with an
+API call to your backend and pass the returned user shape to `setUser`.
 
-**To implement login:** call `setUser(userData)` from `AuthContext` after a successful API response.
-**To implement logout:** call `setUser(null)`.
+### Department-isolated chat
 
-### Adding a New Page
+`ChatProvider` keeps a `Record<DepartmentId, ChatMessage[]>` so each
+department has its own conversation slice. `sendMessage(departmentId,
+text)` only mutates the slice for that department — no broadcasting
+across channels. The dashboard panel is keyed by `department.id`, which
+remounts it on every channel switch and replays the entry animation.
 
-1. Create `src/pages/MyPage.jsx` and a matching `MyPage.css`
-2. Add a route in `src/routes/AppRoutes.jsx`:
+To wire up real-time messaging, replace the local mutation in
+`ChatContext.sendMessage` with a Socket.IO emit, and listen for
+incoming events (e.g. `messageCreated`) to append to the matching
+department slice.
 
-```jsx
-<Route path="/my-page" element={<MyPage />} />
-```
+### Adding a new department
 
-### Adding a New Component
+1. Add an entry to `DEPARTMENTS` in `src/utils/constants.ts` with a new
+   `DepartmentId` literal added to `src/types/index.ts`.
+2. Add a `SEED_MESSAGES` slice in `src/utils/seed.ts` (use `[]` if you
+   want it empty).
+3. Update each role's `defaultDepartments` list as appropriate.
 
-1. Create a folder under `src/components/` (e.g. `src/components/common/Avatar.jsx`)
-2. Create a matching `.css` file next to it
-3. Import the CSS inside the component: `import './Avatar.css'`
+### Adding a new role
 
-### API Calls
-
-All HTTP calls go through `src/services/api.js`. Add functions there (e.g. `getMessages`, `sendMessage`) and import them into components or hooks as needed.
-
-### Real-time (Socket.IO)
-
-Use `src/hooks/useSocket.js` to manage the socket connection. The server URL is read from `VITE_SOCKET_URL` in `.env`.
+1. Extend the `Role` union in `src/types/index.ts`.
+2. Add a `RoleMeta` entry to `ROLES` in `src/utils/constants.ts`,
+   including a default department list and accent color.
+3. Add the role to `Department.allowedRoles` for any department it
+   should be able to access.
 
 ---
 

@@ -1,1 +1,101 @@
-/* MessageInput styles */
+.composer {
+  border-top: 1px solid var(--border);
+  padding: 14px 18px 16px;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--dept-accent) 6%, transparent),
+    transparent 80%
+  );
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.composer__shell {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  transition: border-color 150ms, box-shadow 150ms, background 150ms;
+}
+
+.composer__shell:focus-within {
+  border-color: color-mix(in srgb, var(--dept-accent) 70%, transparent);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--dept-accent) 18%, transparent),
+    0 12px 28px color-mix(in srgb, var(--dept-accent) 25%, transparent);
+}
+
+.composer__input {
+  flex: 1;
+  resize: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 0;
+  max-height: 160px;
+}
+
+.composer__input::placeholder {
+  color: var(--text-faint);
+}
+
+.composer__send {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+  border-radius: 12px;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--dept-accent) 95%, white 5%),
+    color-mix(in srgb, var(--dept-accent) 60%, #5b8cff 40%)
+  );
+  box-shadow:
+    0 10px 22px color-mix(in srgb, var(--dept-accent) 40%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: filter 150ms, transform 120ms, opacity 150ms;
+}
+
+.composer__send:hover:not(:disabled) {
+  transform: scale(1.04);
+}
+.composer__send:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.composer__send:disabled {
+  filter: grayscale(0.5) brightness(0.7);
+  box-shadow: none;
+}
+
+.composer__send-arrow {
+  font-size: 14px;
+  transform: translateY(-1px);
+}
+
+.composer__hint {
+  font-size: 11px;
+  color: var(--text-faint);
+  padding: 0 4px;
+}
+.composer__hint strong { color: var(--text-muted); font-weight: 600; }
+.composer__hint kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
