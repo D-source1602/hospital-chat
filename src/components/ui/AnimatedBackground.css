@@ -1,0 +1,82 @@
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-grid {
+  position: absolute;
+  inset: -10%;
+  background-image:
+    linear-gradient(rgba(122, 162, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122, 162, 255, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  transform-origin: 50% 60%;
+  opacity: 0.7;
+  will-change: transform;
+}
+
+.bg-blob {
+  position: absolute;
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.bg-blob--cyan {
+  top: -180px;
+  left: -120px;
+  background: radial-gradient(circle at 30% 30%, #2dd4ff 0%, rgba(45, 212, 255, 0) 65%);
+  animation: bg-pulse-1 14s ease-in-out infinite;
+}
+
+.bg-blob--violet {
+  bottom: -240px;
+  right: -160px;
+  background: radial-gradient(circle at 60% 60%, #8b5cf6 0%, rgba(139, 92, 246, 0) 65%);
+  opacity: 0.5;
+  animation: bg-pulse-2 18s ease-in-out infinite;
+}
+
+.bg-blob--rose {
+  top: 40%;
+  left: 55%;
+  width: 540px;
+  height: 540px;
+  background: radial-gradient(circle at 50% 50%, #fb7185 0%, rgba(251, 113, 133, 0) 65%);
+  opacity: 0.32;
+  animation: bg-pulse-3 22s ease-in-out infinite;
+}
+
+/* The CSS keyframes only animate scale; the inline transform handles the
+   parallax translate. Combining transforms via multiple animations is fragile,
+   so we use a wrapper trick: each blob gets its own scale animation that
+   overrides only the scale portion through a separate property. */
+@keyframes bg-pulse-1 {
+  0%, 100% { filter: blur(120px) brightness(1); }
+  50% { filter: blur(140px) brightness(1.15); }
+}
+@keyframes bg-pulse-2 {
+  0%, 100% { filter: blur(120px) brightness(1.05); }
+  50% { filter: blur(110px) brightness(0.9); }
+}
+@keyframes bg-pulse-3 {
+  0%, 100% { filter: blur(110px) brightness(0.95); }
+  50% { filter: blur(140px) brightness(1.2); }
+}
+
+.bg-noise {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 3px 3px;
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
